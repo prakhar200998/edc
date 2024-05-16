@@ -43,37 +43,3 @@ Triples: [['medical oncologist', 'oversees', 'treatment']]
 Relations: ['oversees']
 Answer:
 oversees: The subject entity is responsible for managing or supervising the object entity.
-
-Example 7:
-Text: Hormone therapy uses drugs to prevent certain cancers from getting the hormones they need to grow.
-Triples: [['Hormone therapy', 'uses', 'drugs'], ['drugs', 'prevent', 'cancers'], ['cancers', 'getting', 'hormones']]
-Relations: ['uses', 'prevent', 'getting']
-Answer:
-uses: The subject entity makes use of the object entity.
-prevent: The subject entity stops the occurrence of the object entity.
-getting: The object entity receives the subject entity.
-
-Example 8:
-Text: Immunotherapy helps your immune system fight cancer more effectively.
-Triples: [['Immunotherapy', 'helps', 'immune system'], ['immune system', 'fight', 'cancer']]
-Relations: ['helps', 'fight']
-Answer:
-helps: The subject entity aids the object entity.
-fight: The subject entity combats the object entity.
-
-Example 9:
-Text: Targeted therapy changes how cancer cells multiply and behave.
-Triples: [['Targeted therapy', 'changes', 'cancer cells'], ['cancer cells', 'multiply and behave']]
-Relations: ['changes', 'multiply and behave']
-Answer:
-changes: The subject entity alters the state or function of the object entity.
-multiply and behave: The subject entity increases in number and acts in a certain way.
-
-Example 10:
-Text: Adjuvant therapy uses chemotherapy after surgery or radiation therapy to destroy any remaining cancer cells.
-Triples: [['Adjuvant therapy', 'uses', 'chemotherapy'], ['chemotherapy', 'after', 'surgery'], ['chemotherapy', 'after', 'radiation therapy'], ['chemotherapy', 'destroy', 'cancer cells']]
-Relations: ['uses', 'after', 'destroy']
-Answer:
-uses: The subject entity makes use of the object entity.
-after: The subject entity follows the occurrence of the object entity.
-destroy: The subject entity eliminates the object entity.

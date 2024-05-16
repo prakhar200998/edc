@@ -6,7 +6,7 @@ Triplets: [['Chemotherapy', 'is a', 'common cancer treatment']]
 Example 2:
 Text: It uses drugs to destroy cancer cells and prevent tumor growth.
 Candidate Entities: ['It', 'drugs', 'cancer cells', 'tumor growth']
-Triplets: [['It', 'uses', 'drugs'], ['drugs', 'to destroy', 'cancer cells'], ['drugs', 'to prevent', 'tumor growth']]
+Triplets: [['It', 'uses', 'drugs'], ['drugs', 'destroy', 'cancer cells'], ['drugs', 'prevent', 'tumor growth']]
 
 Example 3:
 Text: It may be paired with other cancer treatments such as radiation therapy or surgery.
@@ -21,9 +21,29 @@ Triplets: [['Chemotherapy', 'is usually given', 'intravenously']]
 Example 5:
 Text: Chemotherapy destroys the cancer cells and prevents them from multiplying.
 Candidate Entities: ['Chemotherapy', 'cancer cells']
-Triplets: [['Chemotherapy', 'destroys', 'cancer cells'], ['Chemotherapy', 'prevents from multiplying', 'cancer cells']]
+Triplets: [['Chemotherapy', 'destroys', 'cancer cells'], ['Chemotherapy', 'prevents', 'cancer cells from multiplying']]
 
 Example 6:
 Text: A medical oncologist oversees treatment.
 Candidate Entities: ['medical oncologist', 'treatment']
 Triplets: [['medical oncologist', 'oversees', 'treatment']]
+
+Example 7:
+Text: Hormone therapy uses drugs to prevent certain cancers from getting the hormones they need to grow.
+Candidate Entities: ['Hormone therapy', 'drugs', 'cancers', 'hormones']
+Triplets: [['Hormone therapy', 'uses', 'drugs'], ['drugs', 'prevent', 'cancers'], ['cancers', 'from getting', 'hormones']]
+
+Example 8:
+Text: Immunotherapy helps your immune system fight cancer more effectively.
+Candidate Entities: ['Immunotherapy', 'immune system', 'cancer']
+Triplets: [['Immunotherapy', 'helps', 'immune system'], ['immune system', 'fight', 'cancer']]
+
+Example 9:
+Text: Targeted therapy changes how cancer cells multiply and behave.
+Candidate Entities: ['Targeted therapy', 'cancer cells']
+Triplets: [['Targeted therapy', 'changes', 'cancer cells'], ['cancer cells', 'multiply', 'behave']]
+
+Example 10:
+Text: Adjuvant therapy uses chemotherapy after surgery or radiation therapy to destroy any remaining cancer cells.
+Candidate Entities: ['Adjuvant therapy', 'chemotherapy', 'surgery', 'radiation therapy', 'cancer cells']
+Triplets: [['Adjuvant therapy', 'uses', 'chemotherapy'], ['chemotherapy', 'after', 'surgery'], ['chemotherapy', 'after', 'radiation therapy'], ['chemotherapy', 'destroy', 'cancer cells']]
