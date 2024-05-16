@@ -1,0 +1,23 @@
+Example 1:
+Text: Chemotherapy is a common cancer treatment.
+Triplets: [['Chemotherapy', 'is a', 'common cancer treatment']]
+
+Example 2:
+Text: It uses drugs to destroy cancer cells and prevent tumor growth.
+Triplets: [['It', 'uses', 'drugs'], ['drugs', 'destroy', 'cancer cells'], ['drugs', 'prevent', 'tumor growth']]
+
+Example 3:
+Text: It may be paired with other cancer treatments such as radiation therapy or surgery.
+Triplets: [['It', 'may be paired with', 'other cancer treatments'], ['other cancer treatments', 'such as', 'radiation therapy'], ['other cancer treatments', 'such as', 'surgery']]
+
+Example 4:
+Text: Chemotherapy is usually given intravenously (through a vein).
+Triplets: [['Chemotherapy', 'is usually given', 'intravenously']]
+
+Example 5:
+Text: Chemotherapy destroys the cancer cells and prevents them from multiplying.
+Triplets: [['Chemotherapy', 'destroys', 'cancer cells'], ['Chemotherapy', 'prevents', 'cancer cells from multiplying']]
+
+Example 6:
+Text: A medical oncologist oversees treatment.
+Triplets: [['medical oncologist', 'oversees', 'treatment']]

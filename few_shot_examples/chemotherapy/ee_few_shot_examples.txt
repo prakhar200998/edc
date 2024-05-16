@@ -1,0 +1,23 @@
+Example 1:
+Text: Chemotherapy is a common cancer treatment.
+Entities: ['Chemotherapy', 'cancer treatment']
+
+Example 2:
+Text: It uses drugs to destroy cancer cells and prevent tumor growth.
+Entities: ['drugs', 'cancer cells', 'tumor growth']
+
+Example 3:
+Text: It may be paired with other cancer treatments such as radiation therapy or surgery.
+Entities: ['radiation therapy', 'surgery', 'cancer treatments']
+
+Example 4:
+Text: Chemotherapy is usually given intravenously (through a vein).
+Entities: ['Chemotherapy', 'intravenously']
+
+Example 5:
+Text: It’s an effective treatment but can cause side effects.
+Entities: ['effective treatment', 'side effects']
+
+Example 6:
+Text: Also called “chemo,” it’s one of several cancer treatments that use drugs against various types of cancer.
+Entities: ['chemo', 'cancer treatments', 'drugs']

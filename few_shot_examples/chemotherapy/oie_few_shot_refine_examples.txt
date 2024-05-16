@@ -1,0 +1,29 @@
+Example 1:
+Text: Chemotherapy is a common cancer treatment.
+Candidate Entities: ['Chemotherapy', 'common cancer treatment']
+Triplets: [['Chemotherapy', 'is a', 'common cancer treatment']]
+
+Example 2:
+Text: It uses drugs to destroy cancer cells and prevent tumor growth.
+Candidate Entities: ['It', 'drugs', 'cancer cells', 'tumor growth']
+Triplets: [['It', 'uses', 'drugs'], ['drugs', 'to destroy', 'cancer cells'], ['drugs', 'to prevent', 'tumor growth']]
+
+Example 3:
+Text: It may be paired with other cancer treatments such as radiation therapy or surgery.
+Candidate Entities: ['It', 'other cancer treatments', 'radiation therapy', 'surgery']
+Triplets: [['It', 'may be paired with', 'other cancer treatments'], ['other cancer treatments', 'such as', 'radiation therapy'], ['other cancer treatments', 'such as', 'surgery']]
+
+Example 4:
+Text: Chemotherapy is usually given intravenously (through a vein).
+Candidate Entities: ['Chemotherapy', 'intravenously']
+Triplets: [['Chemotherapy', 'is usually given', 'intravenously']]
+
+Example 5:
+Text: Chemotherapy destroys the cancer cells and prevents them from multiplying.
+Candidate Entities: ['Chemotherapy', 'cancer cells']
+Triplets: [['Chemotherapy', 'destroys', 'cancer cells'], ['Chemotherapy', 'prevents from multiplying', 'cancer cells']]
+
+Example 6:
+Text: A medical oncologist oversees treatment.
+Candidate Entities: ['medical oncologist', 'treatment']
+Triplets: [['medical oncologist', 'oversees', 'treatment']]
