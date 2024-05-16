@@ -21,19 +21,3 @@ Triplets: [['Chemotherapy', 'destroys', 'cancer cells'], ['Chemotherapy', 'preve
 Example 6:
 Text: A medical oncologist oversees treatment.
 Triplets: [['medical oncologist', 'oversees', 'treatment']]
-
-Example 7:
-Text: Hormone therapy uses drugs to prevent certain cancers from getting the hormones they need to grow.
-Triplets: [['Hormone therapy', 'uses', 'drugs'], ['drugs', 'prevent', 'cancers'], ['cancers', 'from getting', 'hormones']]
-
-Example 8:
-Text: Immunotherapy helps your immune system fight cancer more effectively.
-Triplets: [['Immunotherapy', 'helps', 'immune system'], ['immune system', 'fight', 'cancer']]
-
-Example 9:
-Text: Targeted therapy changes how cancer cells multiply and behave.
-Triplets: [['Targeted therapy', 'changes', 'cancer cells'], ['cancer cells', 'multiply', 'behave']]
-
-Example 10:
-Text: Adjuvant therapy uses chemotherapy after surgery or radiation therapy to destroy any remaining cancer cells.
-Triplets: [['Adjuvant therapy', 'uses', 'chemotherapy'], ['chemotherapy', 'after', 'surgery'], ['chemotherapy', 'after', 'radiation therapy'], ['chemotherapy', 'destroy', 'cancer cells']]

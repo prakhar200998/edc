@@ -39,3 +39,18 @@ reduces,The subject entity decreases the severity or extent of the object entity
 plan for,The subject entity makes arrangements or preparations for the object entity.
 includes,The subject entity contains the elements specified by the object entity.
 associated with,The subject entity is related to or connected with the object entity.
+paired with,The subject entity is used in combination with the object entity.
+is treated with,The subject entity is managed or cured using the object entity.
+results in,The subject entity leads to the outcome specified by the object entity.
+targets,The subject entity aims at or focuses on the object entity.
+contributes to,The subject entity helps in achieving the object entity.
+exhibits,The subject entity displays or shows the object entity.
+involves,The subject entity includes or entails the object entity.
+is part of,The subject entity is a component or segment of the object entity.
+is responsible for,The subject entity is in charge of or accountable for the object entity.
+prevents from,The subject entity stops the object entity from occurring.
+alleviates,The subject entity reduces the severity of the object entity.
+controls,The subject entity manages or directs the object entity.
+is caused by,The subject entity happens because of the object entity.
+leads to,The subject entity results in the object entity.
+is administered as,The subject entity is given or provided in the form of the object entity.
