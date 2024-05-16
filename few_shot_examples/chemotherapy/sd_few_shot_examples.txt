@@ -1,0 +1,45 @@
+Example 1:
+Text: Chemotherapy is a common cancer treatment.
+Triples: [['Chemotherapy', 'is a', 'common cancer treatment']]
+Relations: ['is a']
+Answer:
+is a: The subject entity is identified as the object entity.
+
+Example 2:
+Text: It uses drugs to destroy cancer cells and prevent tumor growth.
+Triples: [['It', 'uses', 'drugs'], ['drugs', 'to destroy', 'cancer cells'], ['drugs', 'to prevent', 'tumor growth']]
+Relations: ['uses', 'to destroy', 'to prevent']
+Answer:
+uses: The subject entity makes use of the object entity.
+to destroy: The subject entity's purpose is to eliminate the object entity.
+to prevent: The subject entity's purpose is to stop the occurrence of the object entity.
+
+Example 3:
+Text: It may be paired with other cancer treatments such as radiation therapy or surgery.
+Triples: [['It', 'may be paired with', 'other cancer treatments'], ['other cancer treatments', 'such as', 'radiation therapy'], ['other cancer treatments', 'such as', 'surgery']]
+Relations: ['may be paired with', 'such as']
+Answer:
+may be paired with: The subject entity might be combined with the object entity.
+such as: The object entity is an example of the subject entity.
+
+Example 4:
+Text: Chemotherapy is usually given intravenously (through a vein).
+Triples: [['Chemotherapy', 'is usually given', 'intravenously']]
+Relations: ['is usually given']
+Answer:
+is usually given: The subject entity is typically administered through the method specified by the object entity.
+
+Example 5:
+Text: Chemotherapy destroys the cancer cells and prevents them from multiplying.
+Triples: [['Chemotherapy', 'destroys', 'cancer cells'], ['Chemotherapy', 'prevents from multiplying', 'cancer cells']]
+Relations: ['destroys', 'prevents from multiplying']
+Answer:
+destroys: The subject entity causes the elimination of the object entity.
+prevents from multiplying: The subject entity stops the object entity from increasing in number.
+
+Example 6:
+Text: A medical oncologist oversees treatment.
+Triples: [['medical oncologist', 'oversees', 'treatment']]
+Relations: ['oversees']
+Answer:
+oversees: The subject entity is responsible for managing or supervising the object entity.
