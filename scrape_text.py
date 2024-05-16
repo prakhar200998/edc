@@ -1,6 +1,5 @@
 import requests
 from bs4 import BeautifulSoup
-import re
 
 def scrape_text_from_url(url):
     try:
@@ -11,17 +10,25 @@ def scrape_text_from_url(url):
         # Parse the content using BeautifulSoup
         soup = BeautifulSoup(response.content, 'html.parser')
 
-        # Extract text from specific tags (you can modify this list based on your needs)
-        elements = soup.find_all(['h1', 'h2', 'h3', 'p', 'li'])
+        # Remove script and style elements
+        for script_or_style in soup(['script', 'style']):
+            script_or_style.decompose()
 
-        # Join the text content from these elements
-        text = "\n".join(element.get_text(strip=True) for element in elements)
+        # Extract the main content
+        content = soup.find('div', {'id': 'bodyContent'})
+        if content is None:
+            content = soup.find('div', {'class': 'mw-body'})
+        if content is None:
+            content = soup
 
-        # Split text into sentences and handle lists properly
-        sentences = re.split(r'(?<=[.!?]) +', text)
-        formatted_text = "\n".join(sentences)
+        # Extract text from the relevant elements
+        elements = content.find_all(['h1', 'h2', 'h3', 'p', 'li'])
+        text = " ".join(element.get_text(separator=" ", strip=True) for element in elements)
 
-        return formatted_text.strip()
+        # Replace non-breaking spaces with regular spaces
+        text = text.replace(u'\xa0', ' ')
+
+        return text.strip()
 
     except requests.exceptions.RequestException as e:
         print(f"Error fetching the URL: {e}")
@@ -37,7 +44,7 @@ def save_text_to_file(text, filename):
 
 if __name__ == "__main__":
     # Example URL
-    url = "https://my.clevelandclinic.org/health/treatments/16859-chemotherapy"
+    url = "https://en.wikipedia.org/wiki/Chemotherapy"
 
     # Scrape text from the URL
     text = scrape_text_from_url(url)
