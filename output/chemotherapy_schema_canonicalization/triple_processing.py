@@ -4,7 +4,7 @@ import json
 import ast
 
 # Set up OpenAI API Key
-openai.api_key = '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'
+openai.api_key = ''
 
 def format_triple(subject, predicate, object):
     # Apply formatting rules
