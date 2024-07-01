@@ -1,10 +1,11 @@
 from neo4j import GraphDatabase
+from config import NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD
 import pickle
 import os
 
 class Neo4jConnection:
-    def __init__(self, uri, user, pwd):
-        self.driver = GraphDatabase.driver(uri, auth=(user, pwd))
+    def __init__(self):
+        self.driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USERNAME, NEO4J_PASSWORD))
         self.embeddings_file = 'graph_embeddings.pkl'
         self.entity_embeddings = self.load_embeddings()
 
