@@ -1,9 +1,9 @@
 from neo4j import GraphDatabase
 
 # Database credentials and connection URI
-uri = "neo4j+s://beaf91c7.databases.neo4j.io"
+uri = "neo4j+s://bb9b1791.databases.neo4j.io"
 username = "neo4j"
-password = "OfOkycCG98zby9IztPN-Bb_k6ycyF73N3NDKSDKZRV4"
+password = "JjTrdNPlN-QtsB_tHkz-wq9xihhhz7NKl80uGawx5iA"
 
 class Neo4jConnection:
     def __init__(self, uri, user, pwd):
