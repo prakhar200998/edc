@@ -2,4 +2,4 @@
 NEO4J_URI = "neo4j+s://bb9b1791.databases.neo4j.io"
 NEO4J_USERNAME = "neo4j"
 NEO4J_PASSWORD = "JjTrdNPlN-QtsB_tHkz-wq9xihhhz7NKl80uGawx5iA"
-OPENAI_API_KEY = "sk-proj-1k4ypx1oOg43hO2gMtNdT3BlbkFJbvWeOdG0lJlAaJPr5SVh"
+OPENAI_API_KEY = ""
