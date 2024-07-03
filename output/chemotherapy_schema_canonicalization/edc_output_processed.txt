@@ -86,8 +86,8 @@ DosageOfChemotherapy CAN_BE Difficult
 DosageOfChemotherapy INVOLVES CalculatedBodySurfaceArea
 CalculatedBodySurfaceArea INVOLVES MathematicalFormula
 CalculatedBodySurfaceArea INVOLVES Nomogram
-MathematicalFormula USED_IN Recipient'sWeightAndHeight
-Nomogram INVOLVES Recipient'sWeightAndHeight
+MathematicalFormula USED_IN RecipientsWeightAndHeight
+Nomogram INVOLVES RecipientsWeightAndHeight
 MathematicalFormula RATHER_THAN_BY DirectMeasurementOfBodyArea
 Nomogram RATHER_THAN_BY DirectMeasurementOfBodyArea
 Formula ORIGINALLY_DERIVED_IN 1916Study
@@ -517,7 +517,7 @@ PeopleReceivingChemotherapy ARE_ENCOURAGED_TO_WASH Hands
 PeopleReceivingChemotherapy ARE_ENCOURAGED_TO_AVOID SickPeople
 PeopleReceivingChemotherapy ARE_ENCOURAGED_TO_TAKE Infection-reducingSteps
 85%OfInfections ARE_DUE_TO NaturallyOccurringMicroorganisms
-NaturallyOccurringMicroorganisms ARE_IN Person'sOwnGastrointestinalTract
+NaturallyOccurringMicroorganisms ARE_IN PersonsOwnGastrointestinalTract
 NaturallyOccurringMicroorganisms ARE_IN Skin
 Infections MAY_MANIFEST_AS SystemicInfections
 Infections MAY_MANIFEST_AS LocalizedOutbreaks
@@ -867,7 +867,7 @@ CardiovascularDisease SUCH_AS Doxorubicin
 Organ-specificToxicities INCLUDE InterstitialLungDisease
 InterstitialLungDisease SUCH_AS Bleomycin
 Organ-specificToxicities OCCASIONALLY SecondaryNeoplasm
-SecondaryNeoplasm SUCH_AS MoppTherapyForHodgkin'sDisease
+SecondaryNeoplasm SUCH_AS MoppTherapyForHodgkinsDisease
 Hand-footSyndrome IS SideEffect
 SideEffect TO CytotoxicChemotherapy
 NutritionalProblems IS_FOUND_DURING CancerPatients
@@ -891,9 +891,9 @@ ExtensiveSystem IN_PLACE_TO_PROTECT Brain
 Brain FROM HarmfulChemicals
 DrugTransporters CAN_PUMP_OUT Drugs
 Drugs FROM Brain
-Drugs FROM Brain'sBloodVesselCells
-Brain'sBloodVesselCells INTO CerebrospinalFluid
-Brain'sBloodVesselCells INTO BloodCirculation
+Drugs FROM BrainsBloodVesselCells
+BrainsBloodVesselCells INTO CerebrospinalFluid
+BrainsBloodVesselCells INTO BloodCirculation
 Transporters PUMP_OUT MostChemotherapyDrugs
 MostChemotherapyDrugs REDUCES Efficacy
 Efficacy FOR BrainTumors
@@ -1050,12 +1050,12 @@ Bortezomib IS_USED_IN_COMBINATION_WITH Dexamethasone
 ChemotherapyDrugs ARE_USED_IN ConditioningRegimens
 ConditioningRegimens PRIOR_TO BoneMarrowTransplant
 ConditioningRegimens PRIOR_TO HematopoieticStemCellTransplant
-ConditioningRegimens ARE_USED_TO_SUPPRESS Recipient'sImmuneSystem
+ConditioningRegimens ARE_USED_TO_SUPPRESS RecipientsImmuneSystem
 Suppress ARE_USED_TO_SUPPRESS AllowTransplantToEngraft
 Cyclophosphamide IS_USED_IN Manner
 Cyclophosphamide IS_USED_IN_CONJUNCTION_WITH TotalBodyIrradiation
 ChemotherapeuticDrugs MAY_BE_USED_AT HighDoses
-HighDoses REMOVE Recipient'sBoneMarrowCells
+HighDoses REMOVE RecipientsBoneMarrowCells
 HighDoses REMOVE MyeloablativeConditioning
 HighDoses REMOVE Non-myeloablativeAndReducedIntensityConditioning
 Treatment IS_CALLED Chemotherapy
@@ -1104,7 +1104,7 @@ Those RESPONSIBLE_FOR DisposingAntineoplasticDrugs
 DermalExposure BELIEVED_TO_HAVE_EXPOSED MainRouteOfExposure
 SignificantAmounts WERE_FOUND_IN Gloves
 HealthcareWorkers BELIEVED_TO_HAVE_EXPOSED Agents
-AnotherNoteworthyRouteOfExposure IS InhalationOfTheDrugs'Vapors
+AnotherNoteworthyRouteOfExposure IS InhalationOfTheDrugsVapors
 MultipleStudies HAVE_INVESTIGATED InhalationAsARouteOfExposure
 AirSampling HAS_NOT_SHOWN DangerousLevels
 It IS PotentialRouteOfExposure
@@ -1204,7 +1204,7 @@ ProtectiveEquipment SHOULD_BE_REMOVED_AND_PUT_INTO DisposableChemotherapyWasteCo
 One SHOULD_DOUBLE_BAG ChemotherapyWaste
 One SHOULD_DOUBLE_BAG ChemotherapyWasteBeforeRemovingInnerGloves
 One SHOULD_DOUBLE_BAG ChemotherapyWasteAfterRemovingInnerGloves
-One MUST_ALWAYS_WASH One'sHandsWithSoapAndWaterBeforeLeavingDrugAdministrationSite
+One MUST_ALWAYS_WASH OnesHandsWithSoapAndWaterBeforeLeavingDrugAdministrationSite
 EmployeeTraining IS_A_TYPE_OF Training
 Employees JOBS_EXPOSE_TO HazardousDrugs
 Employees MUST_RECEIVE Training
@@ -1359,7 +1359,7 @@ GemtuzumabOzogamicin RELEASED_BY Wyeth
 Wyeth NOW Pfizer
 Drug FOR AcuteMyeloidLeukemia
 BrentuximabVedotin GRANTED AcceleratedApproval
-AcceleratedApproval IS_USED_TO_TREAT RefractoryHodgkin'sLymphoma
+AcceleratedApproval IS_USED_TO_TREAT RefractoryHodgkinsLymphoma
 AcceleratedApproval IS_USED_TO_TREAT SystemicAnaplasticLargeCellLymphoma
 Nanoparticles ARE 1–1000Nanometer(nm)SizedParticles
 Nanoparticles CAN_PROMOTE TumorSelectivity
