@@ -150,11 +150,9 @@ def extract_response_new(question, instruction, example):
     Generates a response for a given question using interleaved Thought, Action, Observation steps.
     The LLM generates a Thought and an Action based initially on the question, and subsequently based on added observations.
 
-    :param client: OpenAI client instance for API access.
     :param question: The user's question to answer.
     :param instruction: Instructions on how to process the question.
     :param example: Example flow demonstrating how to process a similar question.
-    :param neo4j_conn: Instance of Neo4jConnection for database interactions.
     :return: The final response from the LLM after completing the task or reaching the maximum number of rounds.
     """
     # Start the initial prompt with instruction, example, and user question
@@ -166,7 +164,7 @@ def extract_response_new(question, instruction, example):
 
     while i < 6 and "Finish" not in action:
         i += 1  # Increment round counter
-        print(f"Round {i} - Generating response with the current prompt...")
+        print(f"Round {i} - Generating response with the current prompt. Prompt: {prompt}")
 
         # Request the LLM to generate a Thought and Action
         completion = client.chat.completions.create(
@@ -181,9 +179,9 @@ def extract_response_new(question, instruction, example):
 
         # Extract the response content
         response = completion.choices[0].message.content
-        # print(f"{response.strip()}\n\n\n")  # Print the response per round
+        print(f"{response.strip()}\n\n\n")  # Print the response per round
         thought, action = parse_response(response)
-        print(f"Thought: {thought}\nAction: {action}")
+        # print(f"Thought: {thought}\nAction: {action}")
 
         # Break if action is Finish
         if "Finish" in action:
@@ -200,32 +198,65 @@ def extract_response_new(question, instruction, example):
             top_relationships = select_top_relationships(search_results,thought)
             print(f"Top Relationships: {top_relationships}")
             observation = top_relationships
-            # print(f"Observation: {observation}")
-            prompt += f"\nObservation: {observation}"
+            print(f"Observation: {observation}")
+            
         elif "Generate" in action:
             # Placeholder for generation logic
-            prompt += f"\nObservation: Generated new information based on {thought}"
+            observation = "Generated new information based on {thought}"
+            
         
-        # Append the new thought and action to prompt for the next round
-        prompt += f"\nThought {i+1}: {thought}\nAction {i+1}: {action}"
+        # Update the prompt for the next round of interaction
+        prompt += f"\nThought {i}: {thought}\nAction {i}: {action}\nObservation {i}: {observation}"
+
 
     return response.strip()
 
+# def select_top_relationships(relationships, thought):
+#     """
+#     Use the LLM to select the top three (or fewer, depending on availability) most relevant relationships based on the thought.
+
+
+#     :param relationships: List of all relationships fetched for the top entity.
+#     :param previous_thought: The last thought processed, to provide context.
+#     :return: A list of top 3 relevant relationships in the form "entity-relationship-entity".
+#     """
+#     # Construct a prompt for the LLM to evaluate relationships
+#     prompt = f"Based on the context: '{thought}', which of the following relationships are most relevant? We need to select 3 triples that will help us the most in trying to answer the question or thought given in the context. Please select the most relevant 3 triples out the ones given below:\n"
+#     prompt += "\n".join([f"{i + 1}. {rel['n.name']} - {rel['relationship']} - {rel['m.name']}" for i, rel in enumerate(relationships)])
+#     # print(f"Prompt for relationship selection: {prompt}")
+#     try:
+#         # Using OpenAI's API to get a response based on the prompt
+#         completion = client.chat.completions.create(
+#             model="gpt-4",
+#             messages=[
+#                 {"role": "system", "content": "You are a helpful assistant."},
+#                 {"role": "user", "content": prompt}
+#             ],
+#             max_tokens=1024,
+#             temperature=0.5
+#         )
+
+#         # Extracting and interpreting the LLM's response
+#         response = completion.choices[0].message.content
+#         print(f"Response from LLM: {response}")
+#         top_three_indices = parse_llm_response(response, len(relationships))
+#         return [f"{relationships[i]['n.name']} - {relationships[i]['relationship']} - {relationships[i]['m.name']}" for i in top_three_indices if i < len(relationships)]
+#     except Exception as e:
+#         print(f"An error occurred: {e}")
+#         return []
+
 def select_top_relationships(relationships, thought):
     """
-    Use the LLM to select the top three most relevant relationships based on the previous thought.
-
-    :param client: The OpenAI client instance for API access.
-    :param relationships: List of all relationships fetched for the top entity.
-    :param previous_thought: The last thought processed, to provide context.
-    :return: A list of top 3 relevant relationships in the form "entity-relationship-entity".
+    Use the LLM to select the top three (or fewer, depending on availability) most relevant relationships based on the previous thought.
     """
     # Construct a prompt for the LLM to evaluate relationships
-    prompt = f"Based on the context: '{thought}', which of the following relationships are most relevant? We need to select 3 triples that will help us the most in trying to answer the question or thought given in the context. Please select the most relevant 3 triples out the ones given below:\n"
+    prompt = f"Based on the context: '{thought}', which of the following relationships are most relevant? We need to select up to 3 triples (or fewer, depending on availability) that will help us the most in trying to answer the question or thought given in the context. Please select the most relevant triples out the ones given below:\n"
     prompt += "\n".join([f"{i + 1}. {rel['n.name']} - {rel['relationship']} - {rel['m.name']}" for i, rel in enumerate(relationships)])
-    print(f"Prompt for relationship selection: {prompt}")
+    print(f"Prompt for relationship selection: {prompt}") 
+    # Use only as many selections as there are relationships
+    num_relationships = min(len(relationships), 3)
+
     try:
-        # Using OpenAI's API to get a response based on the prompt
         completion = client.chat.completions.create(
             model="gpt-4",
             messages=[
@@ -236,29 +267,50 @@ def select_top_relationships(relationships, thought):
             temperature=0.5
         )
 
-        # Extracting and interpreting the LLM's response
         response = completion.choices[0].message.content
-        top_three_indices = parse_llm_response(response, len(relationships))
-        return [f"{relationships[i]['n.name']} - {relationships[i]['relationship']} - {relationships[i]['m.name']}" for i in top_three_indices if i < len(relationships)]
+        print(f"Response from LLM: {response}")
+        top_indices = parse_llm_response(response, len(relationships))
+
+        # Ensure that only valid indices are used
+        return [f"{relationships[i]['n.name']} - {relationships[i]['relationship']} - {relationships[i]['m.name']}" for i in top_indices if i < len(relationships)]
     except Exception as e:
         print(f"An error occurred: {e}")
         return []
 
+# def parse_llm_response(response, num_relationships):
+#     """
+#     Parses the LLM's textual response to extract indices of the top 3 relationships.
+
+#     :param response: Textual response from the LLM containing indices or descriptions.
+#     :param num_relationships: Total number of relationships provided to the LLM.
+#     :return: A list of indices corresponding to the top three relationships.
+#     """
+#     import re
+#     # Regex to find indices or parse descriptive responses
+#     pattern = re.compile(r'\d+')
+#     indices = pattern.findall(response)
+#     indices = [int(index) - 1 for index in indices if index.isdigit() and int(index) - 1 < num_relationships]
+#     return indices[:3]  # Ensure only the top three are selected
 
 def parse_llm_response(response, num_relationships):
     """
-    Parses the LLM's textual response to extract indices of the top 3 relationships.
+    Parses the LLM's textual response to extract indices of the top relationships, up to the number available.
 
     :param response: Textual response from the LLM containing indices or descriptions.
     :param num_relationships: Total number of relationships provided to the LLM.
-    :return: A list of indices corresponding to the top three relationships.
+    :return: A list of indices corresponding to the top relationships, up to three or fewer if less are available.
     """
     import re
-    # Regex to find indices or parse descriptive responses
+    # Use regular expression to find all numeric indices in the response
     pattern = re.compile(r'\d+')
     indices = pattern.findall(response)
-    indices = [int(index) - 1 for index in indices if index.isdigit() and int(index) - 1 < num_relationships]
-    return indices[:3]  # Ensure only the top three are selected
+
+    # Convert extracted indices to integer and adjust for 0-based index, filter out-of-range indices
+    valid_indices = [int(index) - 1 for index in indices if int(index) - 1 < num_relationships]
+
+    # Return up to three indices or the number of valid indices, whichever is lesser
+    return valid_indices[:min(3, len(valid_indices))]
+
 
 
 def format_observations(search_results):

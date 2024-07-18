@@ -9,9 +9,9 @@ class Neo4jConnection:
     def __init__(self):
         self.driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USERNAME, NEO4J_PASSWORD))
         self.embeddings_file = 'graph_embeddings.pkl'
+        self.model = SentenceTransformer('all-MiniLM-L6-v2')
         if not os.path.exists(self.embeddings_file):
             print("Embeddings file not found, generating new embeddings.")
-            self.model = SentenceTransformer('all-MiniLM-L6-v2')
             self.fetch_and_encode_entities()
         else:
             print("Loading embeddings from file.")
