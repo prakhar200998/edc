@@ -250,7 +250,7 @@ def select_top_relationships(relationships, thought):
     Use the LLM to select the top three (or fewer, depending on availability) most relevant relationships based on the previous thought.
     """
     # Construct a prompt for the LLM to evaluate relationships
-    prompt = f"Based on the context: '{thought}', which of the following relationships are most relevant? We need to select up to 3 triples (or fewer, depending on availability) that will help us the most in trying to answer the question or thought given in the context. Please select the most relevant triples out the ones given below:\n"
+    prompt = f"Based on the context: '{thought}', which of the following relationships are most relevant? We need to select up to 3 triples (or fewer, depending on availability) that will help us the most in trying to answer the question or thought given in the context. Please select the most relevant triples ONLY out the ones given below, DO NOT CREATE YOUR OWN:\n"
     prompt += "\n".join([f"{i + 1}. {rel['n.name']} - {rel['relationship']} - {rel['m.name']}" for i, rel in enumerate(relationships)])
     print(f"Prompt for relationship selection: {prompt}") 
     # Use only as many selections as there are relationships
