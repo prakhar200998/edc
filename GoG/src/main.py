@@ -1,5 +1,6 @@
 from query_processor import handle_query
 from utils import extract_response_new
+from entropy import fetch_response, identify_high_entropy_tokens, extract_triple_and_generate_question
 
 def main():
     try:
@@ -8,7 +9,7 @@ def main():
         Solve a question answering task with interleaving Thought, Action, Observation steps. Only output the Thought and the Action on the basis of the question fed to you initially. In subsequent iterations, you will be fed with the previous round of thought, action and observation. Use these to generate the next thought and action. Thought can reason about the current situation, and Action can be three types: 
         (1) Search[entity], which searches the 3 most similar entities on the graph and returns their one-hop subgraphs.
         (2) Generate[thought], which generate some new triples related to your last thought.
-        (3) Finish[answer1 | answer2 | ...], which returns the answer and finishes the task. Choose this once you feel there is enough information to answer the question.
+        (3) Finish[answer1 | answer2 | ...], which returns the answer and finishes the task. Choose this once you feel there is enough information to answer the question and/or there are no new observations in successive steps.
         """
 
         example = """
@@ -46,7 +47,21 @@ def main():
         Action 3: Finish[Inhibits DNA Replication | Induces Apoptosis]
         """
 
-        question = "What were metastatic colorectal cancer patients treated with?"
+        user_input = input("Enter your prompt: ")
+        prompt = user_input+"Answer in 1-2 sentences at max."
+        response = fetch_response(prompt)
+        
+        print("Response Details:")
+        print(response.choices[0].message.content.strip())
+        
+        # Identify the token with the highest entropy
+        highest_entropy_token = identify_high_entropy_tokens(response)
+        print(f"Highest Entropy Token: {highest_entropy_token}")
+        
+        # Extract a triple and generate a question using LLM
+        triple, question = extract_triple_and_generate_question(response, highest_entropy_token)
+        # print(f"Triple: {triple}")
+        # print(f"Question: {question}")
 
         
         
