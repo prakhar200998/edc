@@ -38,6 +38,7 @@ def read_tekgen(tekgen_path):
                 json_dict_list.append(line_json_dict)
     return json_dict_list
 
+#AD
 
 def crawl_relation_definitions(json_dict_list, result_csv_path):
     schema_definition_prompt_template = open("./prompt_templates/sd_template.txt").read()
@@ -55,7 +56,7 @@ def crawl_relation_definitions(json_dict_list, result_csv_path):
 
     progress_bar = tqdm(total=5000)
     for json_dict in json_dict_list:
-        if len(collected_relations) >= 5:
+        if len(collected_relations) >= 10:
             break
         triples = json_dict["triples"]
         skip_flag = False
@@ -90,7 +91,7 @@ def crawl_relation_definitions(json_dict_list, result_csv_path):
 
             # print(filled_first_prompt)
             output = llm_utils.openai_chat_completion(
-                "gpt-3.5-turbo",
+                "gpt-4o-mini",
                 system_prompt=None,
                 history=[{"role": "user", "content": filled_first_prompt}],
             )
@@ -170,6 +171,17 @@ def collect_samples(df, dataset_size):
                 return collected_samples
     return collected_samples
 
+def check_csv_content(csv_path):
+    """Check if the CSV file exists and is not empty."""
+    try:
+        if os.path.exists(csv_path) and os.path.getsize(csv_path) > 0:
+            with open(csv_path, 'r') as file:
+                # Check if there's more than just the header
+                has_content = next(csv.reader(file), None) and next(csv.reader(file), None)
+                return has_content
+        return False
+    except IOError:
+        return False
 
 if __name__ == "__main__":
     parser = ArgumentParser()
@@ -186,12 +198,19 @@ if __name__ == "__main__":
     output_path = args.output_path
 
     entries = read_tekgen(tekgen_path)
+    print("Number of entries read:", len(entries))
 
-    if not os.path.exists(relation_definition_csv_path):
+
+    if not check_csv_content(relation_definition_csv_path):
         crawl_relation_definitions(entries, relation_definition_csv_path)
+        print("Crawl completed. Check the CSV for entries.")
+    else:
+        print("CSV file already exists and contains data.")
+
 
     collected_samples = collect_samples(pd.read_csv(relation_definition_csv_path), dataset_size)
-
+    print("Number of samples collected:", len(collected_samples))
+    
     data = Dataset.from_list(collected_samples)
 
     train_test_split = data.train_test_split()

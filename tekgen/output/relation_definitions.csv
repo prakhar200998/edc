@@ -1,0 +1,10 @@
+text,triplets,relations,definitions
+"Adaševci (Serbian Cyrillic: ) is a village located in the municipality of Šid, Srem District, Vojvodina, Serbia.","[['Adaševci', 'country', 'Serbia'], ['Adaševci', 'instance of', 'Village']]","['instance of', 'country']","instance of: The subject entity is a specific example or type of the category specified by the object entity.
+
+country: The subject entity is situated within the geographical boundaries of the country specified by the object entity."
+Simone Kennedy represented Australia at the 2012 Summer Paralympics and won a silver medal in the individual pursuit C1-3.,"[['Simone Kennedy', 'participant of', '2012 Summer Paralympics'], ['Simone Kennedy', 'country of citizenship', 'Australia']]","['country of citizenship', 'participant of']","country of citizenship: The subject entity holds citizenship in the country specified by the object entity.
+
+participant of: The subject entity took part in the event specified by the object entity."
+"Additionally, Scott Carlson was briefly the bassist and vocalist of pioneering death metal band Death, as well as bassist of doom metal band Cathedral, bassist and vocalist of Swedish death metal band Death Breath, vocalist of Japanese doom metal band Church of Misery, bassist of hardcore punk band Septic Tank, guitarist of garage rock band The Superbees and guitarist of From Beyond.","[['Scott Carlson', 'occupation', 'Guitarist'], ['Scott Carlson', 'occupation', 'Bassist'], ['Scott Carlson', 'member of', 'Church of Misery']]","['member of', 'occupation']","member of: The subject entity is a member of the group or organization specified by the object entity.
+
+occupation: The subject entity holds the position or performs the role specified by the object entity."

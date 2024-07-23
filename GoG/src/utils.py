@@ -145,6 +145,78 @@ def extract_response(question, instruction, example):
 
 #     return response.strip()
 
+def generate_new_triple(thought, client):
+    """
+    Simulates generating a new triple based on the thought and the inherent knowledge of the LLM.
+    """
+    # Example prompt to generate a triple based on the thought
+    prompt = f"Based on the following thought: '{thought}' and the observations previously fed in the prompt, generate a relevant triple."
+    completion = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": "Generate a triple."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=100,
+        temperature=0.5
+    )
+    return completion.choices[0].message.content.strip()
+
+def flatten_observations(observations):
+    """Flatten a list of lists into a single list of strings."""
+    flat_list = []
+    for sublist in observations:
+        if isinstance(sublist, list):
+            # Extend flat_list with elements from sublist if they are not lists themselves
+            flat_list.extend([str(item) for item in sublist if not isinstance(item, list)])
+        else:
+            flat_list.append(str(sublist))
+    return flat_list
+
+
+def add_triple_to_graph(neo4j_conn, triple):
+    """
+    Adds the generated triple to the Neo4j graph after validating and resolving entities.
+    """
+    subj, rel, obj = triple.split(", ")
+    # Here you'd include logic to handle entity matching, creation, and relationship linking.
+    query = f"MERGE (a:Entity {{name: '{subj}'}}) MERGE (b:Entity {{name: '{obj}'}}) MERGE (a)-[:{rel}]->(b)"
+    neo4j_conn.run_query(query)
+    return f"Added to graph: {triple}"
+
+def generate_final_answer(answer_list, observations):
+    """
+    Uses an LLM to generate a comprehensive answer based on provided answers and observations.
+
+    :param answer_list: A list of potential answers or key information snippets.
+    :param observations: A list of observations made during the interaction.
+    :return: A synthesized answer as a string.
+    """
+    # Convert list to formatted string
+    answers = ', '.join(answer_list).strip()
+    
+    # Flatten and create a summary of observations
+    flat_observations = flatten_observations(observations)
+    observation_summary = ' '.join(flat_observations)
+    
+    # Construct the prompt for the LLM
+    prompt = f"Based on the following observations: {observation_summary}, and considering these potential answers: {answers}, please synthesize a concise and comprehensive answer to the question."
+
+    # Call to the LLM API
+    completion = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": "You are an AI trained to integrate information into clear responses."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=150,  # Adjust as necessary
+        temperature=0.5  # Keeping it more deterministic
+    )
+
+    # Retrieve and return the LLM-generated response
+    final_answer = completion.choices[0].message.content.strip()
+    return final_answer
+
 def extract_response_new(question, instruction, example):
     """
     Generates a response for a given question using interleaved Thought, Action, Observation steps.
@@ -157,18 +229,18 @@ def extract_response_new(question, instruction, example):
     """
     # Start the initial prompt with instruction, example, and user question
     prompt = f"{instruction}\n{example}\nQuestion: {question}\n"
-    
+    observation_list = []
     # Variables to control the loop
     i = 0
     action = ""
-
+    print(f"Question: {question}")
     while i < 6 and "Finish" not in action:
         i += 1  # Increment round counter
-        print(f"Round {i} - Generating response with the current prompt. Prompt: {prompt}")
+        # print(f"Round {i} - Generating response with the current prompt. Prompt: {prompt}")
 
         # Request the LLM to generate a Thought and Action
         completion = client.chat.completions.create(
-            model="gpt-4",
+            model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "You are a helpful assistant."},
                 {"role": "user", "content": prompt}
@@ -179,30 +251,49 @@ def extract_response_new(question, instruction, example):
 
         # Extract the response content
         response = completion.choices[0].message.content
-        print(f"{response.strip()}\n\n\n")  # Print the response per round
+        print(f"{response.strip()}")  # Print the response per round
         thought, action = parse_response(response)
         # print(f"Thought: {thought}\nAction: {action}")
 
         # Break if action is Finish
         if "Finish" in action:
-            print("Finish action detected, exiting.")
+            answer_content = action[action.find("[")+1:action.find("]")]
+            answer_list = answer_content.split('|')
+            # print("Answer List: ", answer_list)
+            # print("Observation List: ", observation_list)
+            final_answer = generate_final_answer(answer_list=answer_list, observations=observation_list)
+            print("Final Response : \n", final_answer)
             break
 
         # Handle Search or Generate actions
         if "Search" in action:
-            print("Performing search based on the action...")
+            # print("Performing search based on the action...")
             entity = action.split("[")[1].rstrip("]")
             print(f"Searching for entity: {entity}")
             search_results = neo4j_conn.find_similar_entities_with_relationships(entity)
-            print(f"Search Results for {entity}: {search_results}")
+            # print(f"Search Results for {entity}: {search_results}")
             top_relationships = select_top_relationships(search_results,thought)
-            print(f"Top Relationships: {top_relationships}")
+            # print(f"Top Relationships: {top_relationships}")
             observation = top_relationships
-            print(f"Observation: {observation}")
+            observation_list.append(observation)
+            print(f"Observation: {observation}\n")
             
         elif "Generate" in action:
-            # Placeholder for generation logic
-            observation = "Generated new information based on {thought}"
+            sub_question = action.split('[')[1].rstrip(']')
+            print(f"Generating information for: {sub_question}")
+
+            # Generate a new triple based on the current thought and the context provided by the sub-question
+            generated_triple = generate_new_triple(thought + " " + sub_question, client)
+            # print(f"Generated Triple: {generated_triple}")
+
+            # Add the generated triple to the Neo4j graph
+            result = add_triple_to_graph(neo4j_conn, generated_triple)
+            # print(result)
+
+            # Form the observation from generated data
+            observation = f"Newly generated triple: {generated_triple}"
+            observation_list.append(observation)
+            print(f"Generated Observation: {observation}\n")
             
         
         # Update the prompt for the next round of interaction
@@ -252,13 +343,13 @@ def select_top_relationships(relationships, thought):
     # Construct a prompt for the LLM to evaluate relationships
     prompt = f"Based on the context: '{thought}', which of the following relationships are most relevant? We need to select up to 3 triples (or fewer, depending on availability) that will help us the most in trying to answer the question or thought given in the context. Please select the most relevant triples ONLY out the ones given below, DO NOT CREATE YOUR OWN:\n"
     prompt += "\n".join([f"{i + 1}. {rel['n.name']} - {rel['relationship']} - {rel['m.name']}" for i, rel in enumerate(relationships)])
-    print(f"Prompt for relationship selection: {prompt}") 
+    # print(f"Prompt for relationship selection: {prompt}") 
     # Use only as many selections as there are relationships
     num_relationships = min(len(relationships), 3)
 
     try:
         completion = client.chat.completions.create(
-            model="gpt-4",
+            model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "You are a helpful assistant."},
                 {"role": "user", "content": prompt}
@@ -268,7 +359,7 @@ def select_top_relationships(relationships, thought):
         )
 
         response = completion.choices[0].message.content
-        print(f"Response from LLM: {response}")
+        # print(f"Response from LLM: {response}")
         top_indices = parse_llm_response(response, len(relationships))
 
         # Ensure that only valid indices are used

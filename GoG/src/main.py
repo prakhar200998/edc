@@ -8,7 +8,7 @@ def main():
         Solve a question answering task with interleaving Thought, Action, Observation steps. Only output the Thought and the Action on the basis of the question fed to you initially. In subsequent iterations, you will be fed with the previous round of thought, action and observation. Use these to generate the next thought and action. Thought can reason about the current situation, and Action can be three types: 
         (1) Search[entity], which searches the 3 most similar entities on the graph and returns their one-hop subgraphs.
         (2) Generate[thought], which generate some new triples related to your last thought.
-        (3) Finish[answer1 | answer2 | ...], which returns the answer and finishes the task.
+        (3) Finish[answer1 | answer2 | ...], which returns the answer and finishes the task. Choose this once you feel there is enough information to answer the question.
         """
 
         example = """
@@ -53,7 +53,7 @@ def main():
         
         # Call the function with these parameters
         response = extract_response_new(question, instruction, example)
-        print(response)
+        # print(response)
 
     except Exception as e:
         print("An error occurred:", e)
