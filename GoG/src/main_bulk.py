@@ -68,8 +68,8 @@ def main():
         Action 3: Finish[Inhibits DNA Replication | Induces Apoptosis]
         """
 
-        with open("selected_squad_questions.txt", "r") as questions_file, \
-             open("selected_squad_answers.txt", "r") as answers_file, \
+        with open("selected_squad_questions_new.txt", "r") as questions_file, \
+             open("selected_squad_answers_new.txt", "r") as answers_file, \
              open("results.txt", "w") as results_file:
 
             questions = questions_file.readlines()

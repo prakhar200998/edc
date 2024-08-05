@@ -1,0 +1,4 @@
+Thought 2: The observation indicates that the prime minister leads the executive branch of government. I can finalize my answer based on this information.  
+Action 2: Finish[Prime Minister]
+Thought 4: The observations indicate that the Prime Minister, First Minister, and Premier are all titles associated with the leadership in a parliamentary system. I should summarize this information to answer the question.  
+Action 4: Finish[Prime Minister | First Minister | Premier]

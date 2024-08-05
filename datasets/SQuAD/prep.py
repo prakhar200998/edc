@@ -45,9 +45,9 @@ def save_to_file(data, filename):
             file.write(item + '\n')
 
 # Specify the output file paths
-output_contexts_file = 'selected_squad_contexts.txt'
-output_questions_file = 'selected_squad_questions.txt'
-output_answers_file = 'selected_squad_answers.txt'
+output_contexts_file = 'selected_squad_contexts_new.txt'
+output_questions_file = 'selected_squad_questions_new.txt'
+output_answers_file = 'selected_squad_answers_new.txt'
 
 # Save contexts, questions, and answers to their respective files
 save_to_file(all_contexts, output_contexts_file)
