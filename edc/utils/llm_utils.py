@@ -132,7 +132,7 @@ def generate_completion_transformers(
 
 
 def openai_chat_completion(model, system_prompt, history, temperature=0, max_tokens=512):
-    OPENAI_API_KEY = "sk-proj-IkJGbWnch5RdzX9F4JSHT3BlbkFJoLQrSfPcZXRrw8v8ScPi"
+    OPENAI_API_KEY = "sk-None-iLJLgYwWhn5fn3zJXgT7T3BlbkFJgg2oSh4H2BwiDdmTkzIF"
     openai.api_key = OPENAI_API_KEY
     response = None
     if system_prompt is not None:

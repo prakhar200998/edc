@@ -1,10 +1,31 @@
+import logging
+from sentence_transformers import SentenceTransformer, util
 from query_processor import handle_query
 from utils import extract_response_new
 from entropy import fetch_response, identify_high_entropy_tokens, extract_triple_and_generate_question
 
+# Configure logging
+logging.basicConfig(filename='process.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Initialize the sentence transformer model for calculating semantic similarity
+model = SentenceTransformer('all-MiniLM-L6-v2')
+
+def compare_answers(generated, ground_truth):
+    gen_emb = model.encode(generated, convert_to_tensor=True)
+    truth_emb = model.encode(ground_truth, convert_to_tensor=True)
+    similarity = util.pytorch_cos_sim(gen_emb, truth_emb).item()
+    return similarity, similarity > 0.7  # Returning both similarity score and boolean based on threshold
+
+def process_question(question, instruction, example):
+    prompt = question + " Answer in 1-2 sentences maximum."
+    response_mid = fetch_response(prompt)
+    highest_entropy_token = identify_high_entropy_tokens(response_mid)
+    triple, generated_question = extract_triple_and_generate_question(response_mid, highest_entropy_token)
+    response_final = extract_response_new(generated_question, instruction, example)
+    return response_final
+
 def main():
     try:
-
         instruction = """
         Solve a question answering task with interleaving Thought, Action, Observation steps. Only output the Thought and the Action on the basis of the question fed to you initially. In subsequent iterations, you will be fed with the previous round of thought, action and observation. Use these to generate the next thought and action. Thought can reason about the current situation, and Action can be three types: 
         (1) Search[entity], which searches the 3 most similar entities on the graph and returns their one-hop subgraphs.
@@ -47,31 +68,34 @@ def main():
         Action 3: Finish[Inhibits DNA Replication | Induces Apoptosis]
         """
 
-        user_input = input("Enter your question: ")
-        prompt = user_input+"Answer in 1-2 sentences maximum."
-        response = fetch_response(prompt)
-        
-        print("Response Details:")
-        print(response.choices[0].message.content.strip())
-        
-        # Identify the token with the highest entropy
-        highest_entropy_token = identify_high_entropy_tokens(response)
-        print(f"Highest Entropy Token: {highest_entropy_token}")
-        
-        # Extract a triple and generate a question using LLM
-        triple, question = extract_triple_and_generate_question(response, highest_entropy_token)
-        # print(f"Triple: {triple}")
-        # print(f"Question: {question}")
+        with open("selected_squad_questions.txt", "r") as questions_file, \
+             open("selected_squad_answers.txt", "r") as answers_file, \
+             open("results.txt", "w") as results_file:
 
-        
-        
-        
-        # Call the function with these parameters
-        response = extract_response_new(question, instruction, example)
-        # print(response)
+            questions = questions_file.readlines()
+            answers = answers_file.readlines()
+            correct_count = 0
+            total = 0
+
+            for question, ground_truth in zip(questions, answers):
+                response = process_question(question.strip(), instruction, example).strip()
+                similarity, is_correct = compare_answers(response, ground_truth.strip())
+                results_file.write(f"{response}\n")
+                logging.info(f"Question: {question.strip()} | Generated: {response} | Ground Truth: {ground_truth.strip()} | Similarity: {similarity:.2f}")
+                
+                if is_correct:
+                    correct_count += 1
+                total += 1
+
+            # logging this to ensure that the accuracy is recorded for future reference
+            accuracy = correct_count / total if total else 0
+            logging.info(f"Summary Metrics: Total Questions = {total}, Correct Answers = {correct_count}, Accuracy = {accuracy:.2f}")
+            print(f"Accuracy: {accuracy:.2%}")
+            print(f"Total Questions Processed: {total}")
+            print(f"Correct Answers: {correct_count}")
 
     except Exception as e:
-        print("An error occurred:", e)
+        logging.error(f"An error occurred: {str(e)}", exc_info=True)
 
 if __name__ == "__main__":
     main()

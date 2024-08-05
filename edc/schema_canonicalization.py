@@ -8,6 +8,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 import numpy as np
 import copy
 from tqdm import tqdm
+import torch
 
 
 class SchemaCanonicalizer:
@@ -20,6 +21,7 @@ class SchemaCanonicalizer:
         verifier_model: AutoTokenizer = None,
         verifier_tokenizer: AutoTokenizer = None,
         verifier_openai_model: AutoTokenizer = None,
+        log_file: str = "undefined_relations.log",  # Add a default log file
     ) -> None:
         # The canonicalizer uses an embedding model to first fetch candidates from the target schema, then uses a verifier schema to decide which one to canonicalize to or not
         # canonoicalize at all.
@@ -33,8 +35,11 @@ class SchemaCanonicalizer:
         self.embedding_model = embedding_model
         self.embedding_tokenizer = embedding_tokenizer
 
-        # Embed the target schema
+        # Initialize undefined relations dictionary and log file path
+        self.undefined_relations = {}
+        self.log_file = log_file
 
+        # Embed the target schema
         self.schema_embedding_dict = {}
 
         print("Embedding target schema...")
@@ -59,7 +64,28 @@ class SchemaCanonicalizer:
             query_relation_definition,
             "Retrieve semantically similar text.",
         )
-        scores = np.array([query_embedding]) @ np.array(target_relation_embedding_list).T
+            
+        # print("query embedding: ",query_embedding)
+        # print("target:",target_relation_embedding_list)
+        
+        # Ensure query_embedding is a numpy array
+        if isinstance(query_embedding, torch.Tensor):
+            query_embedding = query_embedding.detach().cpu().numpy()
+
+        # Ensure target_relation_embedding_list is a list of numpy arrays
+        target_relation_embedding_list = [emb.detach().cpu().numpy() if isinstance(emb, torch.Tensor) else emb for emb in target_relation_embedding_list]
+
+        # Convert target_relation_embedding_list to a 2D numpy array
+        target_relation_embedding_list = np.array(target_relation_embedding_list)
+
+        # Reshape query_embedding to be 2D if it is 1D
+        if query_embedding.ndim == 1:
+            query_embedding = query_embedding.reshape(1, -1)
+
+        # Perform matrix multiplication to get similarity scores
+        scores = query_embedding @ target_relation_embedding_list.T
+        
+        # scores = np.array([query_embedding]) @ np.array(target_relation_embedding_list).T
 
         scores = scores[0]
         highest_score_indices = np.argsort(-scores)
@@ -129,6 +155,17 @@ class SchemaCanonicalizer:
 
         return canonicalized_triplet
 
+    def log_undefined_relation(self, relation):
+        # Increment the count of undefined relations
+        if relation in self.undefined_relations:
+            self.undefined_relations[relation] += 1
+        else:
+            self.undefined_relations[relation] = 1
+
+        # Log to the file
+        with open(self.log_file, 'a') as file:
+            file.write(f"{relation}: {self.undefined_relations[relation]}\n")
+    
     def canonicalize(
         self,
         input_text_str: str,
@@ -163,10 +200,19 @@ class SchemaCanonicalizer:
         if canonicalized_triplet is None:
             # Cannot be canonicalized
             if enrich:
-                self.schema_dict[open_relation] = open_relation_definition_dict[open_relation]
+                if open_relation in open_relation_definition_dict:
+                    self.schema_dict[open_relation] = open_relation_definition_dict[open_relation]
+                else:
+                    # Assign a default definition
+                    default_definition = f"The subject is {open_relation} to the object"
+                    self.schema_dict[open_relation] = default_definition
+                    self.log_undefined_relation(open_relation)
+                    print(f"Generated definition for '{open_relation}': {default_definition}")
+
                 embedding = llm_utils.get_embedding_e5mistral(
-                    self.embedding_model, self.embedding_tokenizer, open_relation_definition_dict[open_relation]
+                    self.embedding_model, self.embedding_tokenizer, self.schema_dict[open_relation]
                 )
                 self.schema_embedding_dict[open_relation] = embedding
                 canonicalized_triplet = open_triplet
+
         return canonicalized_triplet

@@ -50,7 +50,7 @@ class Neo4jConnection:
  
     def find_similar_entities_with_relationships(self, entity_name):
         if entity_name not in self.entity_embeddings:
-            print("Entity not found in current embeddings, encoding now.")
+            # print("Entity not found in current embeddings, encoding now.")
             input_embedding = self.model.encode(entity_name)
         else:
             input_embedding = self.entity_embeddings[entity_name]

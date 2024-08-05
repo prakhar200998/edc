@@ -43,8 +43,9 @@ def process_file(filename, neo4j_conn):
 # Connect to Neo4j
 conn = Neo4jConnection(uri, username, password)
 
+file_to_process = 'path/to/edc_output_processed.txt'
 # Process the file and create the graph
-process_file('edc_output_processed.txt', conn)
+process_file(file_to_process, conn)
 
 # Close the connection
 conn.close()

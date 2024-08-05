@@ -4,7 +4,7 @@ import json
 import ast
 
 # Set up OpenAI API Key
-openai.api_key = ''
+openai.api_key = 'sk-None-iLJLgYwWhn5fn3zJXgT7T3BlbkFJgg2oSh4H2BwiDdmTkzIF'
 
 def format_triple(subject, predicate, object):
     # Apply formatting rules
@@ -33,7 +33,7 @@ def consult_llm(subject, predicate, object):
     try:
         client = OpenAI()
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo-16k",  # or "gpt-3.5-turbo-16k" if you prefer the turbo models
+            model="gpt-4.0-mini",  # or "gpt-3.5-turbo-16k" if you prefer the turbo models
             messages=[
                 {"role": "system", "content": "You are assisting in formatting data for a Neo4j graph."},
                 {"role": "user", "content": prompt}
@@ -68,4 +68,6 @@ def process_file(input_filename, output_filename):
 
 # Replace 'path_to_your_file.txt' with your file's path
 # Specify the output file path
-process_file('edc_output.txt', 'edc_output_processed.txt')
+file_to_process = 'path/to/edc_output.txt'
+processed_file = 'path/to/edc_output_processed.txt'
+process_file(file_to_process, processed_file)
