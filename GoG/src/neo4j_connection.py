@@ -67,7 +67,7 @@ class Neo4jConnection:
         
         if top_entity:
             # Fetching all relationships for the top similar entity
-            query = f"MATCH (n)-[r]-(m) WHERE n.name = '{top_entity}' RETURN n.name, r.type as relationship, m.name"
+            query = f"MATCH (n)-[r]-(m) WHERE n.name = '{top_entity}' RETURN n.name, TYPE(r) as relationship, m.name"
             relationships = self.run_query(query)
             
             # Prepare relationships data for LLM decision-making

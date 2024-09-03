@@ -174,15 +174,40 @@ def flatten_observations(observations):
     return flat_list
 
 
+import re
+
+def sanitize_entity_name(name):
+    """
+    Sanitizes the entity name by removing or escaping characters that could cause issues in Cypher queries.
+    """
+    # Define a set of characters that need to be removed or escaped
+    problematic_chars = [
+        "(", ")", "{", "}", "[", "]", "<", ">", "\"", "'", "`", "~",
+        "!", "@", "#", "$", "%", "^", "&", "*", "+", "=", "|", "\\", 
+        ";", ":", ",", "/", "?", "\t", "\n"
+    ]
+    
+    # Remove problematic characters using a regular expression
+    sanitized_name = re.sub(r"[{}]".format("".join(re.escape(c) for c in problematic_chars)), "", name)
+    
+    # Strip any leading/trailing whitespace that might remain
+    return sanitized_name.strip()
+
 def add_triple_to_graph(neo4j_conn, triple):
     """
     Adds the generated triple to the Neo4j graph after validating and resolving entities.
     """
-    subj, rel, obj = triple.split(", ")
-    # Here you'd include logic to handle entity matching, creation, and relationship linking.
-    query = f"MERGE (a:Entity {{name: '{subj}'}}) MERGE (b:Entity {{name: '{obj}'}}) MERGE (a)-[:{rel}]->(b)"
-    neo4j_conn.run_query(query)
-    return f"Added to graph: {triple}"
+    try:
+        subj, rel, obj = [sanitize_entity_name(x) for x in triple.split(", ")]
+
+        # Construct the Cypher query using the sanitized names
+        query = f"MERGE (a:Entity {{name: '{subj}'}}) MERGE (b:Entity {{name: '{obj}'}}) MERGE (a)-[:`{rel}`]->(b)"
+        neo4j_conn.run_query(query)
+        return f"Added to graph: {triple}"
+    except Exception as e:
+        # logging.error(f"Failed to add triple to graph: {str(e)}")
+        return f"Failed to add triple to graph: {str(e)}"
+
 
 def generate_final_answer(answer_list, observations):
     """
@@ -271,9 +296,9 @@ def extract_response_new(question, instruction, example):
             entity = action.split("[")[1].rstrip("]")
             print(f"Searching for entity: {entity}")
             search_results = neo4j_conn.find_similar_entities_with_relationships(entity)
-            # print(f"Search Results for {entity}: {search_results}")
+            print(f"Search Results for {entity}: {search_results}")
             top_relationships = select_top_relationships(search_results,thought)
-            # print(f"Top Relationships: {top_relationships}")
+            print(f"Top Relationships: {top_relationships}")
             observation = top_relationships
             observation_list.append(observation)
             print(f"Observation: {observation}\n")
