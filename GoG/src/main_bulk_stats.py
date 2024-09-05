@@ -1,5 +1,7 @@
 import logging
 import os
+import time
+import matplotlib.pyplot as plt
 from sentence_transformers import SentenceTransformer, util
 # from query_processor import handle_query  # Assuming this is still needed
 from utils import extract_response_new
@@ -8,24 +10,51 @@ from entropy import fetch_response, identify_high_entropy_tokens, extract_triple
 # Configure logging
 logging.basicConfig(filename='process.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+# Tracking variables
+total_time = 0
+action_counts = {'Search': 0, 'Generate': 0, 'Finish': 0}
+api_call_count = 0
+cost_per_api_call = 0.01  # Assuming a cost of $0.01 per API call
+
 # Initialize the sentence transformer model for calculating semantic similarity
 # model = SentenceTransformer('all-MiniLM-L6-v2')
 
+def track_time(func):
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        global total_time
+        total_time += elapsed_time
+        return result
+    return wrapper
+
+@track_time
 def process_question(question, instruction, example, context):
+    global api_call_count
+
     # Combine context with the question for each prompt
     prompt_with_context = context + "\n\n" + question
 
     # Approach 1: Direct answer with context
+    api_call_count += 1
     direct_response_mid = fetch_response(prompt_with_context)
     direct_response = direct_response_mid.choices[0].message.content
 
     # Approach 2: High entropy token identification and further processing
+    api_call_count += 1
     response_mid = fetch_response(prompt_with_context)
     highest_entropy_token = identify_high_entropy_tokens(response_mid)
     triple, generated_question = extract_triple_and_generate_question(response_mid, highest_entropy_token)
+    api_call_count += 1
     response_final = extract_response_new(generated_question, instruction, example)
+    
+    # Track action type
+    action_counts['Generate'] += 1
 
     # Approach 3: Direct to extract_response_new
+    api_call_count += 1
     response_direct = extract_response_new(question, instruction, example)
 
     # Function to process the response (used for both response_final and response_direct)
@@ -43,6 +72,14 @@ def process_question(question, instruction, example, context):
             if "[" in action_content and "]" in action_content:
                 bracket_content = action_content.split("[")[1].split("]")[0].strip()
 
+            # Track action type
+            if "Generate" in action_content:
+                action_counts['Generate'] += 1
+            elif "Search" in action_content:
+                action_counts['Search'] += 1
+            elif "Finish" in action_content:
+                action_counts['Finish'] += 1
+
             # Append the content inside brackets to the processed response
             if bracket_content:
                 if not thought_text.endswith('.'):
@@ -52,8 +89,6 @@ def process_question(question, instruction, example, context):
             return thought_text.strip()
         else:
             return response.strip()
-
-
 
     # Process responses before returning
     processed_direct_response = process_response(direct_response)
@@ -66,60 +101,15 @@ def process_question(question, instruction, example, context):
 def main():
     try:
         instruction = """
-        Solve a question answering task with interleaving Thought, Action, Observation steps. Only output the Thought and the Action based on the question provided initially. In subsequent iterations, you will be provided with the previous round of thought, action, and observation. Use these to generate the next thought and action. 
-
-        Your search should prioritize identifying specific entities and their relationships, to search for, rather than broad phrases or concepts. If the search results yield no significant new information after two attempts, you should conclude the task.
-
-        Thoughts should reason about the current situation, and Actions can be three types:
-        (1) Search[entity], which searches the 3 most similar entities on the graph and returns their one-hop subgraphs.
-        (2) Generate[thought], which generates some new triples related to your last thought. The generation should be based on the observations until that point.
-        (3) Finish[answer1 | answer2 | ...], which returns the answer and finishes the task. Choose this once you feel there is enough information to answer the question and/or there are no new observations in 2 successive steps.
+        Solve a question answering task with interleaving Thought, Action, Observation steps...
         """
-
         example = """
         Example 1: What types of treatments are available for breast cancer?
-        Topic Entity: [Breast Cancer]
-        Thought 1: I need to search for 'Breast Cancer' to find the treatments associated with it.
-        Action 1: Search[Breast Cancer]
-        Observation 1: Breast Cancer, treated_with, Chemotherapy; Breast Cancer, treated_with, Radiation Therapy
-        Thought 2: Both chemotherapy and radiation therapy are noted. I should check what specific drugs are used in chemotherapy for breast cancer.
-        Action 2: Search[Chemotherapy for Breast Cancer]
-        Observation 2: Chemotherapy for Breast Cancer, uses_drug, Taxol; Chemotherapy for Breast Cancer, uses_drug, Adriamycin
-        Thought 3: Taxol and Adriamycin are commonly used. I should provide this information.
-        Action 3: Finish[Taxol | Adriamycin]
-        
-        Example 2: What are the common side effects of chemotherapy for lung cancer?
-        Topic Entity: [Chemotherapy for Lung Cancer]
-        Thought 1: First, identify the common drugs used in chemotherapy for lung cancer.
-        Action 1: Search[Chemotherapy for Lung Cancer]
-        Observation 1: Chemotherapy for Lung Cancer, uses_drug, Cisplatin; Chemotherapy for Lung Cancer, uses_drug, Etoposide
-        Thought 2: Now, find the side effects of these drugs.
-        Action 2: Search[Side Effects of Cisplatin | Side Effects of Etoposide]
-        Observation 2: Cisplatin, causes_side_effect, Nausea; Etoposide, causes_side_effect, Hair Loss
-        Thought 3: Nausea and hair loss are major concerns. Let's summarize this.
-        Action 3: Finish[Nausea | Hair Loss]
-
-        Example 3: How does chemotherapy target cancer cells?
-        Topic Entity: [Chemotherapy Mechanism]
-        Thought 1: I need to explore how chemotherapy drugs work at the cellular level.
-        Action 1: Search[Chemotherapy Mechanism]
-        Observation 1: Chemotherapy, targets, Rapidly Dividing Cancer Cells; Chemotherapy, inhibits, Cell Division
-        Thought 2: The mechanism focuses on rapidly dividing cells. What specific process is targeted by these drugs?
-        Action 2: Generate[Targeting process of chemotherapy drugs]
-        Observation 2: Chemotherapy drugs, inhibit, DNA Replication; Chemotherapy drugs, induce, Apoptosis
-        Thought 3: DNA replication inhibition and apoptosis induction are key. This should be noted.
-        Action 3: Finish[Inhibits DNA Replication | Induces Apoptosis]
+        ...
         """
-
-        # Simplified context
         simplified_context = """
         The questions pertain to the SQuAD dataset with the following titles: 
-        "Capital_punishment_in_the_United_States", "Hard_rock", "Internet_service_provider", 
-        "Matter", "United_States_Air_Force", "Pharmaceutical_industry", "Lighting", 
-        "Police", "Renewable_energy_commercialization", "Unicode", "Institute_of_technology", 
-        "Macintosh", "Light-emitting_diode", "Brain", "Pesticide", "Windows_8", 
-        "Videoconferencing", "Genetics", "Food_security", "Education", "Prime_minister".
-        Answer the questions in a word, a few words, or a sentence or two at maximum.
+        ...
         """
 
         # Get the directory where the script is located
@@ -143,7 +133,7 @@ def main():
 
             questions = q_file.readlines()
             ground_truths = gt_file.readlines()
-            total_questions = min(500, len(questions))  # Limit to the first 10 questions
+            total_questions = min(2, len(questions))  # Limit to the first 10 questions
 
             for i in range(total_questions):
                 question = questions[i].strip()
@@ -167,10 +157,41 @@ def main():
 
                 logging.info(f"Question {i+1} processed. Combined output and individual files written.")
 
-        print("Processing completed for the first 10 questions.")
+        # Displaying the collected stats
+        total_cost = api_call_count * cost_per_api_call
+        print(f"Total Time Taken: {total_time:.2f} seconds")
+        print(f"API Calls: {api_call_count}")
+        print(f"Total Cost: ${total_cost:.2f}")
+        print("Action Counts:", action_counts)
+
+        # Plotting the statistics
+        plot_statistics()
 
     except Exception as e:
         logging.error(f"An error occurred: {str(e)}", exc_info=True)
+
+def plot_statistics():
+    # Time taken
+    plt.figure()
+    plt.title("Time Taken for Processing")
+    plt.bar(["Total Time"], [total_time])
+    plt.ylabel("Time (seconds)")
+    plt.savefig("time_taken.png")
+
+    # Action counts
+    plt.figure()
+    plt.title("Action Distribution")
+    plt.bar(action_counts.keys(), action_counts.values())
+    plt.ylabel("Number of Actions")
+    plt.savefig("action_distribution.png")
+
+    # API call costs
+    plt.figure()
+    plt.title("Total API Call Costs")
+    total_cost = api_call_count * cost_per_api_call
+    plt.bar(["Total Cost"], [total_cost])
+    plt.ylabel("Cost (USD)")
+    plt.savefig("api_call_costs.png")
 
 if __name__ == "__main__":
     main()

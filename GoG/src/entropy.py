@@ -96,7 +96,7 @@ def fetch_response(prompt):
     Fetch the generated response using OpenAI's GPT-4 model.
     """
     completion = client.chat.completions.create(
-        model="gpt-4",  # Use a valid model name
+        model="gpt-4o-mini",  # Use a valid model name
         messages=[{"role": "user", "content": prompt}],
         max_tokens=1024,
         logprobs=True,  # Requesting log probabilities for the top tokens
@@ -164,7 +164,7 @@ def extract_triple_and_generate_question(response, high_entropy_token):
     
     # Call the OpenAI API to execute the prompt
     completion = client.chat.completions.create(
-        model="gpt-4",  # Ensure this is the correct model name you have access to
+        model="gpt-4o-mini",  # Ensure this is the correct model name you have access to
         messages=[{"role": "user", "content": prompt}],
         max_tokens=150
     )

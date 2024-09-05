@@ -363,10 +363,10 @@ def extract_response_new(question, instruction, example):
 
 def select_top_relationships(relationships, thought):
     """
-    Use the LLM to select the top three (or fewer, depending on availability) most relevant relationships based on the previous thought.
+    Use the LLM to select the top five different type (or fewer, depending on availability) most relevant relationships based on the previous thought. Be on a lookout for similar meaning relationships that may not be written in the same way.
     """
     # Construct a prompt for the LLM to evaluate relationships
-    prompt = f"Based on the context: '{thought}', which of the following relationships are most relevant? We need to select up to 3 triples (or fewer, depending on availability) that will help us the most in trying to answer the question or thought given in the context. Please select the most relevant triples ONLY out the ones given below, DO NOT CREATE YOUR OWN:\n"
+    prompt = f"Based on the context: '{thought}', which of the following relationships are most relevant? We need to select up to 5 triples (or fewer, depending on availability) that will help us the most in trying to answer the question or thought given in the context. Please select the most relevant triples ONLY out of the ones given below, DO NOT CREATE YOUR OWN:\n"
     prompt += "\n".join([f"{i + 1}. {rel['n.name']} - {rel['relationship']} - {rel['m.name']}" for i, rel in enumerate(relationships)])
     # print(f"Prompt for relationship selection: {prompt}") 
     # Use only as many selections as there are relationships

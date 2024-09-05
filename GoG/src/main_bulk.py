@@ -17,7 +17,7 @@ def compare_answers(generated, ground_truth):
     return similarity, similarity > 0.7  # Returning both similarity score and boolean based on threshold
 
 def process_question(question, instruction, example):
-    prompt = question + " Answer in 1-2 sentences maximum."
+    prompt = question + " Answer in a word, a few words or 1-2 sentences maximum."
     response_mid = fetch_response(prompt)
     highest_entropy_token = identify_high_entropy_tokens(response_mid)
     triple, generated_question = extract_triple_and_generate_question(response_mid, highest_entropy_token)

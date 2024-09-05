@@ -54,6 +54,8 @@ save_to_file(all_contexts, output_contexts_file)
 save_to_file(all_questions, output_questions_file)
 save_to_file(all_answers, output_answers_file)
 
+
+# Print the paths of the output files
 print(f"Contexts have been saved to {output_contexts_file}")
 print(f"Questions have been saved to {output_questions_file}")
 print(f"Answers have been saved to {output_answers_file}")
